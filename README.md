@@ -8,8 +8,12 @@ Clien-side based on ReactJS with Redux(state management)
 
 Display all the bus stops near my location on the map and the list. The list and the stop show the next 3 buses arrival time and destination.
 
-### Styling
+## Deployment
 
-Map - [React-Map-Gl](https://uber.github.io/react-map-gl/#/)
-General UI Components - [Material-ui](https://material-ui.com/)
-CSS - [Styled-components](https://github.com/styled-components/styled-components)
+Deploy through [Heroku](https://www.heroku.com/)
+
+### Built With
+
+- Map - [React-Map-Gl](https://uber.github.io/react-map-gl/#/)
+- General UI Components - [Material-ui](https://material-ui.com/)
+- CSS - [Styled-components](https://github.com/styled-components/styled-components)
