@@ -8,7 +8,7 @@ Clien-side based on ReactJS with Redux(state management)
 
 Display all the bus stops near my location on the map and the list. The list and the stop show the next 3 buses arrival time and destination.
 
-## Deployment
+### Deployment
 
 Deploy through [Heroku](https://www.heroku.com/)
 
