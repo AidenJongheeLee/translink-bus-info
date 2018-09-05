@@ -1,6 +1,5 @@
 import request from 'superagent';
 
-const API_KEY = 'Z7ON66vgAZNFX6tUTyQA';
 const TRANS_LINK = 'https://tanslink-api.herokuapp.com/api';
 
 class FetchResource {

@@ -14,6 +14,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Snackbar from '@material-ui/core/Snackbar';
 import { withStyles } from '@material-ui/core/styles';
 import MyLocation from '@material-ui/icons/MyLocation';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import classNames from 'classnames';
 
 import { stopsFetch, stopEstimate } from '../actions';
 
@@ -43,9 +45,9 @@ class MapContainer extends Component {
     const regex = /am/gm;
     const morning = regex.test(time.split(' ')[0]);
     if (!morning) {
-      newHour = (hour + 12).toString() + ':' + minute.toString() + ' ' + '2018-09-04';
+      newHour = (hour + 12).toString() + ':' + minute.toString() + ' ' + time.split(' ')[1];
     } else {
-      newHour = hour.toString() + ':' + minute.toString() + ' ' + '2018-09-04';
+      newHour = hour.toString() + ':' + minute.toString() + ' ' + time.split(' ')[1];
     }
 
     return newHour;
@@ -59,41 +61,53 @@ class MapContainer extends Component {
       stopEstimate,
       busInfo,
       classes,
-      getCurrentLocation
+      getCurrentLocation,
+      loading,
+      selectedStop
     } = this.props;
     const { latitude, longitude } = currentLocation;
     const { anchorEl } = this.state;
-    console.log(busInfo);
 
     return (
       <div id="my-map">
         <ReactMapGL
           mapStyle={'mapbox://styles/mapbox/streets-v9'}
           scrollZoom
-          width={600}
-          height={600}
+          width={1000}
+          height={800}
           latitude={latitude}
           longitude={longitude}
           zoom={15}
           mapboxApiAccessToken="pk.eyJ1IjoiYWlkZW4xNSIsImEiOiJjamxsYXBxMXkwMmtlM3ZxbWU4cGIwaGxxIn0.B-nUUHbg0KCitSFJkaLMwg"
           onViewportChange={viewport => viewportChange(viewport)}>
           <Marker latitude={currentLocation.latitude} longitude={currentLocation.longitude}>
-            <MyLocation />
+            <MyLocation nativeColor="#4d87ec" />
           </Marker>
 
-          {stops.map(stop => {
-            return (
-              <Marker key={stop.StopNo} latitude={stop.Latitude} longitude={stop.Longitude}>
-                <Place
-                  className={classes.markerIcon}
-                  onClick={e => {
-                    this.setState({ anchorEl: e.currentTarget });
-                    stopEstimate(stop.StopNo);
-                  }}
-                />
-              </Marker>
-            );
-          })}
+          {loading ? (
+            <LoadingContainer>
+              <CircularProgress />
+            </LoadingContainer>
+          ) : (
+            <div>
+              {stops.filter(item => item.Routes).map(stop => {
+                return (
+                  <Marker key={stop.StopNo} latitude={stop.Latitude} longitude={stop.Longitude}>
+                    <Place
+                      nativeColor={
+                        selectedStop && selectedStop.StopNo === stop.StopNo ? '#d95054' : '#4fb1c4'
+                      }
+                      className={classes.markerIcon}
+                      onClick={e => {
+                        this.setState({ anchorEl: e.currentTarget });
+                        stopEstimate(stop.StopNo);
+                      }}
+                    />
+                  </Marker>
+                );
+              })}
+            </div>
+          )}
 
           {busInfo &&
             !busInfo.error &&
@@ -113,7 +127,6 @@ class MapContainer extends Component {
                     {busInfo.Schedules &&
                       busInfo.Schedules.map((schedule, index) => {
                         const formatTime = this.formatTime(schedule.ExpectedLeaveTime);
-                        console.log('format time', formatTime);
                         return (
                           <ContentContainer key={`info-${index}`}>
                             <Destination>{_.capitalize(schedule.Destination)}</Destination>
@@ -151,6 +164,14 @@ class MapContainer extends Component {
     );
   }
 }
+
+const LoadingContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const ButtonContainer = styled.div`
   z-index: 2;
@@ -193,10 +214,15 @@ const mapStateToProps = state => {
   const stops = _.map(state.stops, val => {
     return { ...val };
   });
-  return { stops, busInfo: state.busInfo };
+  return {
+    stops,
+    busInfo: state.busInfo,
+    loading: state.loading.loading,
+    selectedStop: state.seelctedStop.selectedStop
+  };
 };
 
-export default withStyles(styles, {})(
+export default withStyles(styles)(
   connect(
     mapStateToProps,
     { stopsFetch, stopEstimate }
